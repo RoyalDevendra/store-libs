@@ -148,56 +148,6 @@ function broadcast(options) {
     apiCall(data);
 };
 
-/*function broadcast(options){
-  if(!options){
-    Bot.sendMessage('options not found');
-    return;
-  }
-  if(!options.method){
-    Bot.sendMessage('options not found');
-    return;
-  }
-  if(options.method == 'forwardBroadcast'){
-    forwardBrodcast(options);
-    return;
-  }
-  Bot.sendMessage('*Starting broadcast...*')
-  var text = !options.text ? null : options.text;
-  var type = !options.type ? null : options.type;
-  var file_id = !options.file_id ? null : options.file_id;
-  var caption = !options.caption ? null : options.caption;
-  var parseMode = !options.parseMode ? null : options.parseMode;
-  var disableWebPreview = !options.disableWebPreview ? null : options.disableWebPreview;
-  var protectContent = !options.protectContent ? null : options.protectContent;
-
-  var access_token = Bot.getProperty('Projectoid_AccessToken');
-  if(!access_token){
-    throw 'Error: Access Token Not Found';
-    return;
-  }
-  
-  let data = {
-    path: 'telegram/botpanel/broadcast.php',
-    method: 'post',
-    body: {
-      bot: bot.name,
-      bot_token: bot.token,
-      access_token: access_token,
-      admin: user.telegramid,
-      method: options.method,
-      text: text,
-      type: type,
-      file_id: file_id,
-      caption: caption,
-      parseMode: parseMode, 
-      disableWebPreview: disableWebPreview,
-      protectContent: protectContent
-    },
-    onSuccess: null
-  }
-  apiCall(data)
-}*/
-
 function forwardBroadcast(options){
   if(!options){
     Bot.sendMessage('options not found');
@@ -283,158 +233,30 @@ function copyBroadcast(options){
 }
 //---------------------Broadcast Functions Ends------------------------------
 
-function encode(options){
-  if (!options) {
-    throw 'ProjectoidLib-> encode: parameters not found';
+function checkMembership(userId, chats, command){
+  if(!userId){
+    throw 'Error: checkMembership: User id Not Found';
     return;
   }
-  if(!options.text){
-    throw 'ProjectoidLib-> encode: String not Found to Encode'
+  if(!chats){
+    throw 'Error: checkMembership: Chat IDs Not Found';
     return;
   }
-  if(!options.command){
-    throw 'ProjectoidLib-> encode: Command not found to return response'
-    return;
-  }
-  let data = {
-    method: 'get',
-    path: 'wordFun/encode',
-    body: {
-      text: options.text,
-      to: options.to
-    },
-    onSuccess: options.command
-  };
-  
-  apiCall(data);
-}
-
-function decode(options){
-  if (!options) {
-    throw 'ProjectoidLib-> decode: parameters not found';
-    return;
-  }
-  if(!options.text){
-    throw 'ProjectoidLib-> decode: Text not Found to Decode'
-    return;
-  }
-  if(!options.command){
-    throw 'ProjectoidLib-> decode: Command not found to return response'
-    return;
-  }
-  let data = {
-    method: 'get',
-    path: 'wordFun/decode',
-    body: {
-      text: options.text,
-      from: options.from
-    },
-    onSuccess: options.command
-  };
-  apiCall(data)
-}
-
-function ipInfo(ip, command){
-  if(!ip){
-    throw 'ProjectoidLib-> ipInfo: IP not Found to Extract Info'
-    return;
-  }
-  if(!command){
-    throw 'ProjectoidLib-> ipInfo: Command not found to return response'
-    return;
-  }
-  let data = {
-    method: 'get',
-    path: 'ipInfo',
-    body: {
-     ip: ip
-    },
-    onSuccess: command
-  };
-  apiCall(data)
-}
-
-function sendMail(options){
-  if(!options){
-    throw 'ProjectoidLib-> sendMail: parameters not found'
-    return;
-  }
-  if(!options.to || !options.from || !options.htmlBody){
-    throw 'ProjectoidLib-> sendMail: Required Parameters Missing (i.e, to, from, htmlBody)';
+  if (!command) {
+    throw 'Error: checkMembership: command not found to return response';
     return;
   }
   
   let data = {
+    path: 'telegram/membership/index.php',
     method: 'post',
-    path: 'mailSender',
     body: {
-      to: options.to,
-      from: options.from,
-      htmlBody: options.htmlBody,
-      subject: options.subject,
-      replyToEmail: options.replyToEmail
-    },
-    onSuccess: options.command
-  };
-  apiCall(data)
-}
-
-function appStoreAppDetails(appName, command){
-  if(!appName){
-    throw 'ProjectoidLib-> appStoreAppDetails: appName not found to extract details'
-    return;
-  }
-  if(!command){
-    throw 'ProjectoidLib-> appStoreAppDetails: Command not found to return response'
-    return;
-  }
-  let data = {
-    method: 'get',
-    path: 'details/appstore',
-    body: {
-      appName: appName
+      token: bot.token,
+      userId: userId,
+      chatIds: chats
     },
     onSuccess: command
-  };
-  apiCall(data)
-}
-function weather(location, command){
-  if(!location){
-    throw 'ProjectoidLib-> weather: location not found to extract details'
-    return;
   }
-  if(!command){
-    throw 'ProjectoidLib-> weather: Command not found to return response'
-    return;
-  }
-  let data = {
-    method: 'get',
-    path: 'weather',
-    body: {
-      location: location
-    },
-    onSuccess: command
-  };
-  apiCall(data)
-}
-function youtubeDetails(query, limit, command){
-  if(!query){
-    throw 'ProjectoidLib-> youtubeDetails: query not found to extract details'
-    return;
-  }
-  if(!command){
-    throw 'ProjectoidLib-> youtubeDetails: Command not found to return response'
-    return;
-  }
-  let data = {
-    method: 'get',
-    path: 'social/youtube/search',
-    body: {
-      query: query, 
-      limit: limit
-    },
-    onSuccess: command
-  };
   apiCall(data)
 }
 
@@ -467,13 +289,7 @@ publish({
   broadcast: broadcast,
   forwardBroadcast: forwardBroadcast,
   copyBroadcast: copyBroadcast,
-  encode: encode,
-  decode: decode,
-  sendMail: sendMail,
-  ipInfo: ipInfo, 
-  appStoreSearch: appStoreAppDetails, 
-  youtubeSearch: youtubeDetails, 
-  weather: weather
+  checkMembership: checkMembership
 })
 
 on(libPrefix + "onApiAnswer", onApiAnswer)
