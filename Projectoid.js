@@ -30,9 +30,7 @@ function apiCall(options) {
         : { "Content-Type": "application/json" }),
     },
     body: options.body,
-    query: options.body,
     folow_redirects: true,
-    completed_commands_count: 0,
     success: libPrefix + "onApiAnswer " + options.onSuccess,
     error: libPrefix + "onApiError",
   };
@@ -83,18 +81,18 @@ function addUser(userid, access_token) {
       user_id: userid,
       access_token: access_token,
     },
-    onSuccess: null,
+    onSuccess: !options.command ? null : options.command,
   };
   apiCall(data);
 }
 
 function broadcast(options) {
   if (!options) {
-    Bot.sendMessage("options not found");
+    throw "Error: broadcast: options not found";
     return;
   }
   if (!options.method) {
-    Bot.sendMessage("options not found");
+    throw "Error: broadcast: options not found";
     return;
   }
   if (options.method == "forwardBroadcast") {
@@ -106,7 +104,6 @@ function broadcast(options) {
     return;
   }
 
-  Bot.sendMessage("*Starting broadcast...*");
   var text = !options.text ? null : options.text;
   var type = !options.type ? null : options.type;
   var file_id = !options.file_id ? null : options.file_id;
@@ -117,11 +114,12 @@ function broadcast(options) {
     : options.disableWebPreview;
   var protectContent = !options.protectContent ? false : options.protectContent;
   var webhookUrl = !options.webhookUrl ? null : options.webhookUrl;
+  var cmd = !options.command ? null : options.command;
 
   if (!options.access_token) {
     var access_token = Bot.getProperty("Projectoid_AccessToken");
     if (!access_token) {
-      throw "Error: Bot Access Token Not Found";
+      throw "Error: broadcast: Bot Access Token Not Found";
       return;
     }
   }
@@ -144,30 +142,31 @@ function broadcast(options) {
       protectContent: protectContent,
       webhookUrl: webhookUrl,
     },
-    onSuccess: options.command,
+    onSuccess: cmd,
   };
   apiCall(data);
 }
 
 function forwardBroadcast(options) {
   if (!options) {
-    Bot.sendMessage("options not found");
+    throw "Error: forwardBroadcast: options not found";
     return;
   }
   var from_chat_id = options.from_chat_id;
   var message_id = options.message_id;
 
-  if (!from_chat_id || !message_id) {
-    Bot.sendMessage("chat id or message id was not found");
+  if (!from_chat_id || !message_id) {    
+    throw "Error: forwardBroadcast: chat id or message id was not found";
     return;
   }
   var protectContent = !options.protectContent ? false : options.protectContent;
   var webhookUrl = !options.webhookUrl ? null : options.webhookUrl;
+  var cmd = !options.command ? null : options.command;
 
   if (!options.access_token) {
     var access_token = Bot.getProperty("Projectoid_AccessToken");
     if (!access_token) {
-      throw "Error: Bot Access Token Not Found";
+      throw "Error: forwardBroadcast: Bot Access Token Not Found";
       return;
     }
   }
@@ -185,31 +184,31 @@ function forwardBroadcast(options) {
       protectContent: protectContent,
       webhookUrl: webhookUrl,
     },
-    onSuccess: null,
+    onSuccess: cmd,
   };
-  Bot.sendMessage("*Starting broadcast...*");
   apiCall(data);
 }
 
 function copyBroadcast(options) {
   if (!options) {
-    Bot.sendMessage("options not found");
+    throw "Error: copyBroadcast: options not found";
     return;
   }
   var from_chat_id = options.from_chat_id;
   var message_id = options.message_id;
 
   if (!from_chat_id || !message_id) {
-    Bot.sendMessage("chat id or message id was not found");
+    throw "Error: copyBroadcast: chat id or message id was not found";
     return;
   }
   var protectContent = !options.protectContent ? false : options.protectContent;
   var webhookUrl = !options.webhookUrl ? null : options.webhookUrl;
+  var cmd = !options.command ? null : options.command;
 
   if (!options.access_token) {
     var access_token = Bot.getProperty("Projectoid_AccessToken");
     if (!access_token) {
-      throw "Error: Bot Access Token Not Found";
+      throw "Error: copyBroadcast: Bot Access Token Not Found";
       return;
     }
   }
@@ -227,9 +226,8 @@ function copyBroadcast(options) {
       protectContent: protectContent,
       webhookUrl: webhookUrl,
     },
-    onSuccess: null,
+    onSuccess: cmd,
   };
-  Bot.sendMessage("*Starting broadcast...*");
   apiCall(data);
 }
 //---------------------Broadcast Functions Ends------------------------------
