@@ -4,7 +4,7 @@ let API_URL = "https://api.projectoid.site/v1";
 
 // Function to convert JSON to URL query string
 function jTQS(jsonData) {
-  var queryString = Object.keys(jsonData)
+  let queryString = Object.keys(jsonData)
     .map(function (key) {
       return encodeURIComponent(key) + "=" + encodeURIComponent(jsonData[key]);
     })
@@ -48,45 +48,45 @@ function apiCall(options) {
 //set projectoid access token
 function saveToken(access_token) {
   if (!access_token) {
-    throw "Error: Projectoid Access Token Not Found";
+    throw libPrefix + ": Projectoid Access Token Not Found";
   }
   if (access_token.length != 32) {
-    throw "Error: Projectoid Access Token is Wrong";
+    throw libPrefix + ": Projectoid Access Token is Wrong";
   }
   Bot.setProperty("Projectoid_AccessToken", access_token);
 }
 
-function addUser(userid, access_token) {
-  if (isNaN(parseInt(userid))) {
-    throw "incorrect user id";
+function addChat(chatid, access_token) {
+  if (isNaN(parseInt(chatid))) {
+    throw libPrefix + ": addChat: incorrect chat id";
   }
 
   if (!access_token) {
     var access_token = Bot.getProperty("Projectoid_AccessToken");
     if (!access_token) {
-      throw "Error: Access Token Not Found";
+      throw libPrefix + ": addChat: Access Token Not Found";
     }
   }
 
-  let data = {
+  let requestData = {
     method: "post",
     path: "telegram/botpanel/adduser.php",
     body: {
       bot_id: bot.token.split(":")[0],
-      user_id: userid,
-      access_token: access_token,
+      user_id: chatid,
+      access_token,
     },
     onSuccess: !options.command ? null : options.command,
   };
-  apiCall(data);
+  apiCall(requestData);
 }
 
 function broadcast(options) {
   if (!options) {
-    throw "Error: broadcast: options not found";
+    throw libPrefix + ": broadcast: options not found";
   }
   if (!options.method) {
-    throw "Error: broadcast: options not found";
+    throw libPrefix + ": broadcast: options not found";
   }
   if (options.method == "forwardBroadcast") {
     forwardBroadcast(options);
@@ -112,12 +112,11 @@ function broadcast(options) {
   if (!options.access_token) {
     var access_token = Bot.getProperty("Projectoid_AccessToken");
     if (!access_token) {
-      throw "Error: broadcast: Bot Access Token Not Found";
-      return;
+      throw libPrefix + ": broadcast: Bot Access Token Not Found";
     }
   }
 
-  let data = {
+  let requestData = {
     path: "telegram/botpanel/broadcast.php",
     method: "post",
     body: {
@@ -137,18 +136,18 @@ function broadcast(options) {
     },
     onSuccess: cmd,
   };
-  apiCall(data);
+  apiCall(requestData);
 }
 
 function forwardBroadcast(options) {
   if (!options) {
-    throw "Error: forwardBroadcast: options not found";
+    throw libPrefix + ": forwardBroadcast: options not found";
   }
   var from_chat_id = options.from_chat_id;
   var message_id = options.message_id;
 
   if (!from_chat_id || !message_id) {    
-    throw "Error: forwardBroadcast: chat id or message id was not found";
+    throw libPrefix + ": forwardBroadcast: chat id or message id was not found";
   }
   var protectContent = !options.protectContent ? false : options.protectContent;
   var webhookUrl = !options.webhookUrl ? null : options.webhookUrl;
@@ -157,11 +156,11 @@ function forwardBroadcast(options) {
   if (!options.access_token) {
     var access_token = Bot.getProperty("Projectoid_AccessToken");
     if (!access_token) {
-      throw "Error: forwardBroadcast: Bot Access Token Not Found";
+      throw libPrefix + ": forwardBroadcast: Bot Access Token Not Found";
     }
   }
 
-  let data = {
+  let requestData = {
     path: "telegram/botpanel/broadcast.php",
     method: "post",
     body: {
@@ -176,18 +175,18 @@ function forwardBroadcast(options) {
     },
     onSuccess: cmd,
   };
-  apiCall(data);
+  apiCall(requestData);
 }
 
 function copyBroadcast(options) {
   if (!options) {
-    throw "Error: copyBroadcast: options not found";
+    throw libPrefix + ": copyBroadcast: options not found";
   }
   var from_chat_id = options.from_chat_id;
   var message_id = options.message_id;
 
   if (!from_chat_id || !message_id) {
-    throw "Error: copyBroadcast: chat id or message id was not found";
+    throw libPrefix + ": copyBroadcast: chat id or message id was not found";
   }
   var protectContent = !options.protectContent ? false : options.protectContent;
   var webhookUrl = !options.webhookUrl ? null : options.webhookUrl;
@@ -196,12 +195,11 @@ function copyBroadcast(options) {
   if (!options.access_token) {
     var access_token = Bot.getProperty("Projectoid_AccessToken");
     if (!access_token) {
-      throw "Error: copyBroadcast: Bot Access Token Not Found";
-      return;
+      throw libPrefix + ": copyBroadcast: Bot Access Token Not Found";
     }
   }
 
-  let data = {
+  let requestData = {
     path: "telegram/botpanel/broadcast.php",
     method: "post",
     body: {
@@ -216,32 +214,35 @@ function copyBroadcast(options) {
     },
     onSuccess: cmd,
   };
-  apiCall(data);
+  apiCall(requestData);
 }
 //---------------------Broadcast Functions Ends------------------------------
 
-function checkMembership(userId, chats, command) {
-  if (!userId) {
-    throw "Error: checkMembership: User id Not Found";
+function checkMembership(options) {
+  if (!options) {
+    throw libPrefix + ": checkMembership: params not found";
   }
-  if (!chats) {
-    throw "Error: checkMembership: Chat IDs Not Found";
+  if (!options.userId) {
+    throw libPrefix + ": checkMembership: User id Not Found";
   }
-  if (!command) {
-    throw "Error: checkMembership: command not found to return response";
+  if (!options.chats) {
+    throw libPrefix + ": checkMembership: Chat IDs Not Found";
+  }
+  if (!options.command) {
+    throw libPrefix + ": checkMembership: command not found to return response";
   }
 
-  let data = {
+  let requestData = {
     path: "telegram/membership/index.php",
     method: "post",
     body: {
       token: bot.token,
-      userId,
-      chatIds: chats,
+      userId: options.userId,
+      chatIds: options.chats,
     },
-    onSuccess: command,
+    onSuccess: options.command,
   };
-  apiCall(data);
+  apiCall(requestData);
 }
 
 // Function called when an API answer is received
@@ -260,12 +261,12 @@ function onApiAnswer() {
 
 // Function called when an API request results in an error
 function onApiError() {
-  throw content + "\nGet Help at @ProjectoidChat";
+  throw libPrefix + ": " + content + "\nGet Help at @ProjectoidChat";
 }
 
 publish({
   apiCall: apiCall,
-  addUser: addUser,
+  addChat: addChat,
   saveToken: saveToken,
   startBroadcast: broadcast,
   forwardBroadcast: forwardBroadcast,
