@@ -16,7 +16,6 @@ function jTQS(jsonData) {
 function apiCall(options) {
   if (!options) {
     throw "options not found";
-    return;
   }
   let url = API_URL + "/" + options.path;
   if (options.method.toLowerCase() === "get") {
@@ -50,11 +49,9 @@ function apiCall(options) {
 function saveToken(access_token) {
   if (!access_token) {
     throw "Error: Projectoid Access Token Not Found";
-    return;
   }
   if (access_token.length != 32) {
     throw "Error: Projectoid Access Token is Wrong";
-    return;
   }
   Bot.setProperty("Projectoid_AccessToken", access_token);
 }
@@ -62,14 +59,12 @@ function saveToken(access_token) {
 function addUser(userid, access_token) {
   if (isNaN(parseInt(userid))) {
     throw "incorrect user id";
-    return;
   }
 
   if (!access_token) {
     var access_token = Bot.getProperty("Projectoid_AccessToken");
     if (!access_token) {
       throw "Error: Access Token Not Found";
-      return;
     }
   }
 
@@ -89,11 +84,9 @@ function addUser(userid, access_token) {
 function broadcast(options) {
   if (!options) {
     throw "Error: broadcast: options not found";
-    return;
   }
   if (!options.method) {
     throw "Error: broadcast: options not found";
-    return;
   }
   if (options.method == "forwardBroadcast") {
     forwardBroadcast(options);
@@ -130,17 +123,17 @@ function broadcast(options) {
     body: {
       bot: bot.name,
       bot_token: bot.token,
-      access_token: access_token,
+      access_token,
       admin: user.telegramid,
       method: options.method,
-      text: text,
-      type: type,
-      file_id: file_id,
-      caption: caption,
-      parseMode: parseMode,
-      disableWebPreview: disableWebPreview,
-      protectContent: protectContent,
-      webhookUrl: webhookUrl,
+      text,
+      type,
+      file_id,
+      caption,
+      parseMode,
+      disableWebPreview,
+      protectContent,
+      webhookUrl,
     },
     onSuccess: cmd,
   };
@@ -150,14 +143,12 @@ function broadcast(options) {
 function forwardBroadcast(options) {
   if (!options) {
     throw "Error: forwardBroadcast: options not found";
-    return;
   }
   var from_chat_id = options.from_chat_id;
   var message_id = options.message_id;
 
   if (!from_chat_id || !message_id) {    
     throw "Error: forwardBroadcast: chat id or message id was not found";
-    return;
   }
   var protectContent = !options.protectContent ? false : options.protectContent;
   var webhookUrl = !options.webhookUrl ? null : options.webhookUrl;
@@ -167,7 +158,6 @@ function forwardBroadcast(options) {
     var access_token = Bot.getProperty("Projectoid_AccessToken");
     if (!access_token) {
       throw "Error: forwardBroadcast: Bot Access Token Not Found";
-      return;
     }
   }
 
@@ -175,14 +165,14 @@ function forwardBroadcast(options) {
     path: "telegram/botpanel/broadcast.php",
     method: "post",
     body: {
-      access_token: access_token,
+      access_token,
       bot_token: bot.token,
       admin: user.telegramid,
       method: "forwardMessage",
-      from_chat_id: from_chat_id,
-      message_id: message_id,
-      protectContent: protectContent,
-      webhookUrl: webhookUrl,
+      from_chat_id,
+      message_id,
+      protectContent,
+      webhookUrl,
     },
     onSuccess: cmd,
   };
@@ -192,14 +182,12 @@ function forwardBroadcast(options) {
 function copyBroadcast(options) {
   if (!options) {
     throw "Error: copyBroadcast: options not found";
-    return;
   }
   var from_chat_id = options.from_chat_id;
   var message_id = options.message_id;
 
   if (!from_chat_id || !message_id) {
     throw "Error: copyBroadcast: chat id or message id was not found";
-    return;
   }
   var protectContent = !options.protectContent ? false : options.protectContent;
   var webhookUrl = !options.webhookUrl ? null : options.webhookUrl;
@@ -217,14 +205,14 @@ function copyBroadcast(options) {
     path: "telegram/botpanel/broadcast.php",
     method: "post",
     body: {
-      access_token: access_token,
+      access_token,
       bot_token: bot.token,
       method: "copyMessage",
       admin: user.telegramid,
-      from_chat_id: options.from_chat_id,
-      message_id: options.message_id,
-      protectContent: protectContent,
-      webhookUrl: webhookUrl,
+      from_chat_id,
+      message_id,
+      protectContent,
+      webhookUrl,
     },
     onSuccess: cmd,
   };
@@ -235,15 +223,12 @@ function copyBroadcast(options) {
 function checkMembership(userId, chats, command) {
   if (!userId) {
     throw "Error: checkMembership: User id Not Found";
-    return;
   }
   if (!chats) {
     throw "Error: checkMembership: Chat IDs Not Found";
-    return;
   }
   if (!command) {
     throw "Error: checkMembership: command not found to return response";
-    return;
   }
 
   let data = {
@@ -251,7 +236,7 @@ function checkMembership(userId, chats, command) {
     method: "post",
     body: {
       token: bot.token,
-      userId: userId,
+      userId,
       chatIds: chats,
     },
     onSuccess: command,
@@ -282,7 +267,7 @@ publish({
   apiCall: apiCall,
   addUser: addUser,
   saveToken: saveToken,
-  broadcast: broadcast,
+  startBroadcast: broadcast,
   forwardBroadcast: forwardBroadcast,
   copyBroadcast: copyBroadcast,
   checkMembership: checkMembership,
