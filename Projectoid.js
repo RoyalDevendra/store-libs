@@ -114,7 +114,7 @@ function initiateBroadcast(options) {
     throw libPrefix + ": initiateBroadcast: options not found";
   }
   if (!options.method) {
-    throw libPrefix + ": initiateBroadcast: options not found";
+    throw libPrefix + ": initiateBroadcast: broadcast method not found";
   }
   if (options.method == "forwardMessage") {
     initiateForwardBroadcast(options);
