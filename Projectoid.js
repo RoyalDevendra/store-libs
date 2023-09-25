@@ -304,7 +304,7 @@ publish({
   addChat: addChat,
   saveToken: saveToken,
   initiateBroadcast: initiateBroadcast,
-  initiateForwardBroadcast: inititeForwardBroadcast,
+  initiateForwardBroadcast: initiateForwardBroadcast,
   initiateCopyBroadcast: initiateCopyBroadcast,
   checkMembership: checkMembership,
 });
