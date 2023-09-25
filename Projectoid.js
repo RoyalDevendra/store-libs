@@ -12,10 +12,16 @@ function jTQS(jsonData) {
   return queryString;
 }
 
-//call connection with Projectoid
+/**
+ * apiCall() - Makes an API call to Projectoid.
+ *
+ * @since 1.0.0
+ *
+ * @param {object} options - The API call options.
+ */
 function apiCall(options) {
   if (!options) {
-    throw "options not found";
+    throw libPrefix + ": apiCall: options not found";
   }
   let url = API_URL + "/" + options.path;
   if (options.method.toLowerCase() === "get") {
@@ -44,8 +50,13 @@ function apiCall(options) {
   }
 }
 
-//---------------------Broadcast Functions Starts----------------------------
-//set projectoid access token
+/**
+ * saveToken() - Saves the Projectoid access token.
+ *
+ * @since 1.0.0
+ *
+ * @param {string} access_token - The Projectoid access token to save.
+ */
 function saveToken(access_token) {
   if (!access_token) {
     throw libPrefix + ": Projectoid Access Token Not Found";
@@ -56,7 +67,16 @@ function saveToken(access_token) {
   Bot.setProperty("Projectoid_AccessToken", access_token);
 }
 
-function addChat(chatid, access_token) {
+/**
+ * addChat() - Adds a chat to Projectoid.
+ *
+ * @since 1.0.0
+ *
+ * @param {string|number} chatid - The chat ID to add.
+ * @param {string} access_token - The Projectoid access token.
+ * @param {string} command - The command to execute on success.
+ */
+function addChat(chatid, access_token, command) {
   if (isNaN(parseInt(chatid))) {
     throw libPrefix + ": addChat: incorrect chat id";
   }
@@ -76,43 +96,51 @@ function addChat(chatid, access_token) {
       user_id: chatid,
       access_token,
     },
-    onSuccess: !options.command ? null : options.command,
+    onSuccess: !command ? null : command,
   };
   apiCall(requestData);
 }
 
-function broadcast(options) {
+//---------------------Broadcast Functions Starts----------------------------
+/**
+ * initiateBroadcast() // initiateForwardBroadcast() // initiateCopyBroadcast() - Broadcasts a message to multiple chats.
+ *
+ * @since 1.0.0
+ *
+ * @param {object} options - The broadcast options.
+ */
+function initiateBroadcast(options) {
   if (!options) {
-    throw libPrefix + ": broadcast: options not found";
+    throw libPrefix + ": initiateBroadcast: options not found";
   }
   if (!options.method) {
-    throw libPrefix + ": broadcast: options not found";
+    throw libPrefix + ": initiateBroadcast: options not found";
   }
-  if (options.method == "forwardBroadcast") {
-    forwardBroadcast(options);
+  if (options.method == "forwardMessage") {
+    initiateForwardBroadcast(options);
     return;
   }
-  if (options.method == "copyBroadcast") {
-    copyBroadcast(options);
+  if (options.method == "copyMessage") {
+    initiateCopyBroadcast(options);
     return;
   }
 
-  var text = !options.text ? null : options.text;
-  var type = !options.type ? null : options.type;
-  var file_id = !options.file_id ? null : options.file_id;
-  var caption = !options.caption ? null : options.caption;
-  var parseMode = !options.parseMode ? null : options.parseMode;
-  var disableWebPreview = !options.disableWebPreview
+  let text = !options.text ? null : options.text;
+  let type = !options.type ? null : options.type;
+  let file_id = !options.file_id ? null : options.file_id;
+  let caption = !options.caption ? null : options.caption;
+  let parseMode = !options.parseMode ? null : options.parseMode;
+  let disableWebPreview = !options.disableWebPreview
     ? null
     : options.disableWebPreview;
-  var protectContent = !options.protectContent ? false : options.protectContent;
-  var webhookUrl = !options.webhookUrl ? null : options.webhookUrl;
-  var cmd = !options.command ? null : options.command;
+  let protectContent = !options.protectContent ? false : options.protectContent;
+  let webhookUrl = !options.webhookUrl ? null : options.webhookUrl;
+  let cmd = !options.command ? null : options.command;
 
   if (!options.access_token) {
     var access_token = Bot.getProperty("Projectoid_AccessToken");
     if (!access_token) {
-      throw libPrefix + ": broadcast: Bot Access Token Not Found";
+      throw libPrefix + ": initiateBroadcast: Bot Access Token Not Found";
     }
   }
 
@@ -139,24 +167,24 @@ function broadcast(options) {
   apiCall(requestData);
 }
 
-function forwardBroadcast(options) {
+function initiateForwardBroadcast(options) {
   if (!options) {
-    throw libPrefix + ": forwardBroadcast: options not found";
+    throw libPrefix + ": initiateForwardBroadcast: options not found";
   }
-  var from_chat_id = options.from_chat_id;
-  var message_id = options.message_id;
+  let from_chat_id = options.from_chat_id;
+  let message_id = options.message_id;
 
   if (!from_chat_id || !message_id) {    
-    throw libPrefix + ": forwardBroadcast: chat id or message id was not found";
+    throw libPrefix + ": initiateForwardBroadcast: chat id or message id was not found";
   }
-  var protectContent = !options.protectContent ? false : options.protectContent;
-  var webhookUrl = !options.webhookUrl ? null : options.webhookUrl;
-  var cmd = !options.command ? null : options.command;
+  let protectContent = !options.protectContent ? false : options.protectContent;
+  let webhookUrl = !options.webhookUrl ? null : options.webhookUrl;
+  let cmd = !options.command ? null : options.command;
 
   if (!options.access_token) {
     var access_token = Bot.getProperty("Projectoid_AccessToken");
     if (!access_token) {
-      throw libPrefix + ": forwardBroadcast: Bot Access Token Not Found";
+      throw libPrefix + ": initiateForwardBroadcast: Bot Access Token Not Found";
     }
   }
 
@@ -178,24 +206,24 @@ function forwardBroadcast(options) {
   apiCall(requestData);
 }
 
-function copyBroadcast(options) {
+function initiateCopyBroadcast(options) {
   if (!options) {
-    throw libPrefix + ": copyBroadcast: options not found";
+    throw libPrefix + ": initiateCopyBroadcast: options not found";
   }
-  var from_chat_id = options.from_chat_id;
-  var message_id = options.message_id;
+  let from_chat_id = options.from_chat_id;
+  let message_id = options.message_id;
 
   if (!from_chat_id || !message_id) {
-    throw libPrefix + ": copyBroadcast: chat id or message id was not found";
+    throw libPrefix + ": initiateCopyBroadcast: chat id or message id was not found";
   }
-  var protectContent = !options.protectContent ? false : options.protectContent;
-  var webhookUrl = !options.webhookUrl ? null : options.webhookUrl;
-  var cmd = !options.command ? null : options.command;
+  let protectContent = !options.protectContent ? false : options.protectContent;
+  let webhookUrl = !options.webhookUrl ? null : options.webhookUrl;
+  let cmd = !options.command ? null : options.command;
 
   if (!options.access_token) {
     var access_token = Bot.getProperty("Projectoid_AccessToken");
     if (!access_token) {
-      throw libPrefix + ": copyBroadcast: Bot Access Token Not Found";
+      throw libPrefix + ": initiateCopyBroadcast: Bot Access Token Not Found";
     }
   }
 
@@ -218,6 +246,13 @@ function copyBroadcast(options) {
 }
 //---------------------Broadcast Functions Ends------------------------------
 
+/**
+ * checkMembership() - Checks membership of users in chats.
+ *
+ * @since 1.0.0
+ *
+ * @param {object} options - The membership check options.
+ */
 function checkMembership(options) {
   if (!options) {
     throw libPrefix + ": checkMembership: params not found";
@@ -268,9 +303,9 @@ publish({
   apiCall: apiCall,
   addChat: addChat,
   saveToken: saveToken,
-  startBroadcast: broadcast,
-  forwardBroadcast: forwardBroadcast,
-  copyBroadcast: copyBroadcast,
+  initiateBroadcast: initiateBroadcast,
+  initiateForwardBroadcast: inititeForwardBroadcast,
+  initiateCopyBroadcast: initiateCopyBroadcast,
   checkMembership: checkMembership,
 });
 
