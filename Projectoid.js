@@ -35,6 +35,7 @@ function apiCall(options) {
   if (options.method.toLowerCase() === "get") {
     url += "?" + convertJsonToQueryString(options.body);
   }
+  const background = options.background ?? false;
   let apiData = {
     url: url,
     headers: {
@@ -44,8 +45,9 @@ function apiCall(options) {
     },
     body: options.body,
     folow_redirects: true,
-    success: libPrefix + "onApiAnswer " + options.onSuccess,
-    error: libPrefix + "onApiError",
+    background,
+    success: libPrefix + "_onApiAnswer " + options.onSuccess,
+    error: libPrefix + "_onApiError",
   };
 
   // Check the method and use the corresponding HTTP function
@@ -91,27 +93,28 @@ function getAccessToken(){
  * @param {string} access_token - The Projectoid access token.
  * @param {string} command - The command to execute on success.
  */
-function addChat(chatid, access_token, command) {
-  if (isNaN(parseInt(chatid))) {
+function addChat(options) {
+  if(!options) {
+    throw libPrefix + ": addChat: parameters not found";
+  }
+  if (isNaN(parseInt(options.chat_id))) {
     throw libPrefix + ": addChat: incorrect chat id";
   }
-
-  if (!access_token) {
-    var access_token = Bot.getProperty("Projectoid_AccessToken");
-    if (!access_token) {
-      throw libPrefix + ": addChat: Access Token Not Found";
-    }
+  if(!options.chat_id) {
+    throw libPrefix + ": addChat: chat id not found";
   }
+  const access_token = options.access_token ?? getAccessToken();
 
   let requestData = {
     method: "post",
     path: "telegram/botpanel/adduser.php",
     body: {
       bot_id: bot.token.split(":")[0],
-      user_id: chatid,
+      user_id: options.chat_id,
       access_token,
     },
-    onSuccess: command ? command : null,
+    background: true,
+    onSuccess: options.command ?? null,
   };
   apiCall(requestData);
 }
@@ -159,7 +162,7 @@ function initiateBroadcast(options) {
   const {
     text = null, type = null, file_id = null, caption = null, 
     parseMode = null, disableWebPreview = null, 
-    protectContent = false, webhookUrl = null, command = null 
+    protectContent = false, webhookUrl = null 
   } = options;
 
   const access_token = options.access_token ?? getAccessToken();
@@ -182,7 +185,7 @@ function initiateBroadcast(options) {
       protectContent,
       webhookUrl,
     },
-    onSuccess: cmd,
+    onSuccess: options.command ?? null,
   };
   apiCall(requestData);
 }
@@ -191,7 +194,7 @@ function initiateForwardBroadcast(options) {
   if (!options) {
     throw libPrefix + ": initiateForwardBroadcast: options not found";
   }
-  const { from_chat_id, message_id, protectContent = false, webhookUrl = null, command = null } = options;
+  const { from_chat_id, message_id, protectContent = false, webhookUrl = null } = options;
 
   if (!from_chat_id || !message_id) {
     throw libPrefix + ": initiateForwardBroadcast: chat id or message id was not found";
@@ -212,7 +215,7 @@ function initiateForwardBroadcast(options) {
       protectContent,
       webhookUrl,
     },
-    onSuccess: command,
+    onSuccess: options.command ?? null,
   };
   apiCall(requestData);
 }
@@ -221,7 +224,7 @@ function initiateCopyBroadcast(options) {
   if (!options) {
     throw libPrefix + ": initiateCopyBroadcast: options not found";
   }
-  const { from_chat_id, message_id, protectContent = false, webhookUrl = null, command = null } = options;
+  const { from_chat_id, message_id, protectContent = false, webhookUrl = null } = options;
   
   if (!from_chat_id || !message_id) {
     throw libPrefix + ": initiateCopyBroadcast: chat id or message id was not found";
@@ -242,7 +245,7 @@ function initiateCopyBroadcast(options) {
       protectContent,
       webhookUrl,
     },
-    onSuccess: command,
+    onSuccess: options.command ?? null,
   };
   apiCall(requestData);
 }
@@ -319,5 +322,5 @@ publish({
   checkMembership: checkMembership,
 });
 
-on(libPrefix + "_onApiAnswer", onApiAnswer);
-on(libPrefix + "_onApiError", onApiError);
+on(libPrefix + "_onApiAnswer", _onApiAnswer);
+on(libPrefix + "_onApiError", _onApiError);
